@@ -1,6 +1,7 @@
+import { exit } from 'process'
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import {  useState, useTransition } from 'react'
+import {  useEffect, useState, useTransition } from 'react'
 
 import passwordGif from '../../assets/gif/password.gif'
 import { ReactComponent as Copy } from '../../assets/icons/copy.svg'
@@ -43,18 +44,60 @@ const checkboxList = [
 
 
 const PasswordGenerator = () => {
-  const [passwordLength, setPasswordLength] = useState<number>(8)
-  const [password, setPassword] =  useState<string>('')
+const [passwordLength, setPasswordLength] = useState<number>(8)
+const [password, setPassword] =  useState<string>('')
 
 const upperCaseSelect = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const lowerCaseSelect = 'abcdefghijklmnopqrstuvwxyz'
 const numCaseSelect = '0123456789'
 const specCaseSelect = '!@#$%^&*()'
 const [data, setData] = useState( checkboxList)
+const [strength, setStrength] = useState()
+const [length, setLength] = useState<string>('WEAK')
 
+
+useEffect(()=>{
+let strength =0
+  
+  if(password.match(/[a-z]+/)){
+    strength+=1
+  }
+  else if(password.match(/[A-Z]+/)){
+    strength+=1
+  }
+  if(password.match(/[0-9]+/)){
+    strength+=1
+  }
+  if(password.match(/[!@#$%^&*()]+/)){
+    strength+=1
+  }
+  if(password.length<8){
+    strength=0
+  }
+  
+  switch(strength){
+    case 0:
+      setLength('Too Short')
+      break;
+    case 1:
+      setLength('Weak')
+      break;
+    case 2:
+      setLength('Medium')
+      break;
+    case 3:
+      setLength('Hard')
+      break;
+    case 4:
+      setLength('Too Short')
+      break;  
+  }
+ 
+},[length, password])
   const onChangePasswordLength = (value: number | number[]) => {
     setPasswordLength(value as number)
   }
+
 
 
   const copyPass = () => {
@@ -73,16 +116,13 @@ const [data, setData] = useState( checkboxList)
   }
 
   const createPass = () => {
-    let result = ''
+    let result:string = ''
 
     let selection : string[] = []
 
-    let finalPass = ''
     data.map((item) =>
-          item.checked === true ? selection.push(item.name): ''
+          item.checked === true ? selection.push(item.name) : ''
     )
-
-
     for (let i=0; i<selection.length ; i++) {
         if(selection[i] ==='upper')
         result += upperCaseSelect
@@ -125,11 +165,11 @@ setPassword(tempPass)
           <input type="text" placeholder="your password" value={password} />
           <Refresh onClick={createPass} />
         </div>
-        <button onClick={copyPass} className="copy-btn">
+        <button onClick={()=>navigator.clipboard.writeText(password)} className="copy-btn">
           <Copy /> Copy
         </button>
       </div>
-      <span className="fw-500">Weak</span>
+      <span className="fw-500">{length}</span>
       <div className="slider">
         <div>
           <label id="slider-label">Password Length: </label>
