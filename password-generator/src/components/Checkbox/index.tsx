@@ -1,9 +1,10 @@
 import './index.css'
 
-const Checkbox = ({ id, label, checked, name, onChange }: any) => {
+const Checkbox = ({ key, id, label, checked, name, onChange,  }:any) => {
+
   return (
     <div className="checkbox-wrapper">
-      <input id={id} type="checkbox" checked={checked} name={name} onChange={onChange} />
+      <input multiple key={id} id={id} type="checkbox" checked={checked} name={name} onChange={onChange} />
       <label htmlFor={id}>{label}</label>
     </div>
   )

@@ -1,6 +1,6 @@
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
-import { useState } from 'react'
+import {  useState, useTransition } from 'react'
 
 import passwordGif from '../../assets/gif/password.gif'
 import { ReactComponent as Copy } from '../../assets/icons/copy.svg'
@@ -8,11 +8,105 @@ import { ReactComponent as Refresh } from '../../assets/icons/refresh.svg'
 import Checkbox from '../Checkbox'
 import './index.css'
 
+const checkboxList = [
+
+  {
+    id:0,
+    label:"upperCase",
+    name: "upper",
+    checked:false
+
+  },
+  {
+    id:1,
+    label:"lowerCase",
+    name: "lower",
+    checked:false
+
+  },
+  {
+    id:2,
+    label:"numbercase",
+    name: "number",
+    checked:false
+
+  },
+  {
+    id:3,
+    label:"specialCase",
+    name: "symbols",
+    checked:false
+
+  }
+]
+
+
+
 const PasswordGenerator = () => {
   const [passwordLength, setPasswordLength] = useState<number>(8)
+  const [password, setPassword] =  useState<string>('')
+
+const upperCaseSelect = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const lowerCaseSelect = 'abcdefghijklmnopqrstuvwxyz'
+const numCaseSelect = '0123456789'
+const specCaseSelect = '!@#$%^&*()'
+const [data, setData] = useState( checkboxList)
 
   const onChangePasswordLength = (value: number | number[]) => {
     setPasswordLength(value as number)
+  }
+
+
+  const copyPass = () => {
+
+    //map through the data array to check if 
+
+      console.log(password)
+  }
+
+  const handleChange = (id:number) => {
+    const updateCheckboxes = data.map((checkbox) => 
+    checkbox.id === id ? {...checkbox, checked: !checkbox.checked}:checkbox)
+
+    setData(updateCheckboxes)
+
+  }
+
+  const createPass = () => {
+    let result = ''
+
+    let selection : string[] = []
+
+    let finalPass = ''
+    data.map((item) =>
+          item.checked === true ? selection.push(item.name): ''
+    )
+
+
+    for (let i=0; i<selection.length ; i++) {
+        if(selection[i] ==='upper')
+        result += upperCaseSelect
+
+        if(selection[i] ==='lower')
+        result += lowerCaseSelect
+
+        if(selection[i] ==='number')
+        result += numCaseSelect
+
+        if(selection[i] ==='symbols')
+        result += specCaseSelect
+
+    }
+    let tempPass = ''
+
+
+    for ( let i = 0; i < passwordLength; i++ ) {
+      tempPass += result.charAt(Math.floor(Math.random() * result.length));
+   }    
+   
+
+
+setPassword(tempPass)
   }
 
   return (
@@ -28,10 +122,10 @@ const PasswordGenerator = () => {
       </div>
       <div className="password-input-wrapper">
         <div className="password-field">
-          <input type="text" placeholder="your password" value="B9QI4PDBYY" />
-          <Refresh />
+          <input type="text" placeholder="your password" value={password} />
+          <Refresh onClick={createPass} />
         </div>
-        <button className="copy-btn">
+        <button onClick={copyPass} className="copy-btn">
           <Copy /> Copy
         </button>
       </div>
@@ -49,18 +143,25 @@ const PasswordGenerator = () => {
           className="slider-style"
         />
       </div>
-      <div className="elements">
-        <Checkbox id="uppercase" label="Uppercase" checked={true} name="upper" />
-        <Checkbox id="lowercase" label="Lowercase" checked={false} name="lower" />
-        <Checkbox id="numbers" label="Numbers" checked={false} name="numbers" />
-        <Checkbox
-          id="special chars"
-          label="Special Characters"
-          checked={true}
-          name="specialChars"
-        />
-      </div>
-    </div>
+      <div  className="elements">
+        {data.map((obj) => {
+
+          return(
+            <div key={obj.id}>
+          <Checkbox
+          multiple={true}
+          id={obj.id}
+          label = {obj.label}
+          checked= {obj.checked}
+          name= {obj.name}
+          onChange = {() => handleChange(obj.id)}
+          />
+                    </div>
+
+          )
+        })}
+        </div>
+        </div>
   )
 }
 
